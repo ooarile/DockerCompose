@@ -1,15 +1,11 @@
-   services:
-     svn:
-       image: garethflowers/svn-server
-       container_name: svn
-       ports:
-         - "3690:3690"
-       volumes:
-         - svn_data:/var/opt/svn
-       environment:
-         - SVN_REPOS=myrepo
-         - SVN_ADMIN_USER=admin
-         - SVN_ADMIN_PASS=adminpass
+services:
+  svn:
+    build: .
+    container_name: svn
+    ports:
+      - "3690:3690"
+    volumes:
+      - svn_data:/var/opt/svn
 
-   volumes:
-     svn_data:
+volumes:
+  svn_data:

@@ -1,0 +1,7 @@
+[groups]
+admins = admin
+users = tmdghks0906, parksh
+
+[/]
+@admins = rw
+@users = rw
