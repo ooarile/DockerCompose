@@ -1,0 +1,21 @@
+# Prometheus 전역 설정
+global:
+  scrape_interval: 15s  # 모든 타겟의 기본 스크래핑 간격 (15초)
+
+# 스크래핑 대상 설정
+scrape_configs:
+  # Prometheus 자체 메트릭 스크래핑 설정
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']  # Prometheus 서버 자체를 모니터링 (자체 진단용)
+
+  # Node Exporter 메트릭 스크래핑 설정 (Linux 시스템 메트릭)
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node_exporter:9100']  # Docker Compose 네트워크 내부의 node_exporter 서비스
+      
+  # Windows Exporter 메트릭 스크래핑 설정 (Windows 시스템 메트릭)
+  - job_name: 'windows'
+    static_configs:
+      - targets: ['host.docker.internal:9182']  # Docker 호스트의 Windows Exporter (포트 9182)
+    metrics_path: /metrics  # 메트릭 엔드포인트 경로 (기본값)

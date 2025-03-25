@@ -1,0 +1,42 @@
+version: '3.7'  # Docker Compose 파일 형식 버전
+
+# 모니터링 스택의 서비스 정의
+services:
+  # Prometheus: 시계열 데이터베이스 및 모니터링 시스템
+  # 메트릭을 수집하고 저장하며 쿼리할 수 있는 기능 제공
+  prometheus:
+    image: prom/prometheus:latest  # 최신 Prometheus 이미지 사용
+    container_name: prometheus  # 컨테이너 이름 지정
+    volumes:
+      # 호스트의 prometheus.yml 파일을 컨테이너 내부로 마운트
+      # 이 파일에 스크래핑 대상 및 설정이 정의됨
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"  # Prometheus 웹 UI 및 API용 포트 노출
+
+  # Grafana: 데이터 시각화 및 모니터링 대시보드 도구
+  # Prometheus에서 수집된 데이터를 시각적으로 표현
+  grafana:
+    image: grafana/grafana:latest  # 최신 Grafana 이미지 사용
+    container_name: grafana  # 컨테이너 이름 지정
+    ports:
+      - "3000:3000"  # Grafana 웹 UI용 포트 노출
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # 관리자 비밀번호 설정 (기본값: admin)
+      # 실제 환경에서는 보안을 위해 강력한 비밀번호 사용 권장
+
+  # Node Exporter: 리눅스 시스템 메트릭 수집기
+  # CPU, 메모리, 디스크, 네트워크 등 시스템 리소스 메트릭 수집
+  # 주로 리눅스 환경에서 사용 (Windows에서는 Windows Exporter 사용)
+  node_exporter:
+    image: prom/node-exporter:latest  # 최신 Node Exporter 이미지 사용
+    container_name: node_exporter  # 컨테이너 이름 지정
+    ports:
+      - "9100:9100"  # Node Exporter 메트릭 엔드포인트용 포트 노출
+
+# 영구 볼륨 정의
+volumes:
+  prometheus_data: {}  # Prometheus 데이터 저장을 위한 볼륨
+  # 주의: 현재 설정에서는 볼륨이 정의되었지만 사용되지 않음
+  # 데이터 영속성을 위해 prometheus 서비스에 볼륨 마운트 추가 필요
+  # 예: - prometheus_data:/prometheus
