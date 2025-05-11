@@ -1,0 +1,28 @@
+services:  # 이 섹션에서는 실행할 Docker 컨테이너들을 정의한다다
+  db:
+    image: postgres:12-alpine  # 이미지를 사용하여 PostgreSQL 데이터베이스 컨테이너를 생성합니다.
+    restart: unless-stopped    # 옵션을 사용하여 컨테이너가 수동으로 중지되지 않는 한 자동으로 재시작되도록 설정합니다.
+    environment:  # 데이터베이스 사용자, 비밀번호, 데이터베이스 이름을 환경 변수로 설정합니다.
+      POSTGRES_USER: mmuser    # 데이터베이스 사용자 이름
+      POSTGRES_PASSWORD: mmuser_password  # 데이터베이스 비밀번호
+      POSTGRES_DB: mattermost  # 생성할 데이터베이스 이름
+    volumes:
+      - db-volume:/var/lib/postgresql/data  # 이라는 이름의 볼륨을 사용하여 데이터베이스 데이터를 영구적으로 저장합니다.
+
+  app:
+    image: mattermost/mattermost-team-edition:latest  # mattermost/mattermost-team-edition:latest 이미지를 사용하여 Mattermost 애플리케이션 컨테이너를 생성합니다.
+    restart: unless-stopped  #  옵션을 사용하여 컨테이너가 수동으로 중지되지 않는 한 자동으로 재시작되도록 설정합니다.
+    ports:
+      - "8065:8065"  # 호스트의 8065 포트를 컨테이너의 8065 포트에 매핑하여 외부에서 접근할 수 있도록 합니다.
+    environment: # 데이터베이스 연결 정보와 Mattermost 설정 파일 경로를 환경 변수로 설정합니다.
+      MM_SQLSETTINGS_DRIVERNAME: postgres  # 데이터베이스 드라이버 설정
+      MM_SQLSETTINGS_DATASOURCE: postgres://mmuser:mmuser_password@db:5432/mattermost?sslmode=disable&connect_timeout=10  # 데이터베이스 연결 정보
+      MM_CONFIG: /mattermost/config/config.json  # Mattermost 설정 파일 경로
+    volumes:
+      - app-volume:/mattermost/data  # 애플리케이션 데이터를 저장할 볼륨
+    depends_on: # db 서비스가 먼저 시작되도록 설정하여 데이터베이스가 준비된 후 애플리케이션이 시작되도록 합니다.
+      - db  # db 서비스가 먼저 시작되도록 설정
+
+volumes:
+  db-volume:  # PostgreSQL 데이터 저장을 위한 볼륨
+  app-volume:  # Mattermost 데이터 저장을 위한 볼륨
